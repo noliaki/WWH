@@ -1,5 +1,6 @@
 <template>
   <div class="container">
+    <button type="button" @click.prevent="onClick">LOGIN</button>
     <div>
       <logo />
       <h1 class="title">
@@ -31,6 +32,11 @@ import Logo from '~/components/Logo.vue'
 export default Vue.extend({
   components: {
     Logo
+  },
+  methods: {
+    onClick(): void {
+      this.$store.dispatch('gapi/getHolidays')
+    }
   }
 })
 </script>

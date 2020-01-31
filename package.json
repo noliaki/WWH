@@ -26,6 +26,7 @@
     "@nuxt/typescript-runtime": "^0.3.8",
     "@nuxtjs/dotenv": "^1.4.1",
     "@nuxtjs/pwa": "^3.0.0-beta.19",
+    "googleapis": "47.0.0",
     "nuxt": "^2.11.0"
   },
   "devDependencies": {
