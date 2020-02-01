@@ -36,6 +36,7 @@ export default Vue.extend({
   methods: {
     onClick(): void {
       this.$store.dispatch('gapi/getHolidays')
+      this.$store.dispatch('countries/fetchAll')
     }
   }
 })
