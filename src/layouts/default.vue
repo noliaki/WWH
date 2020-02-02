@@ -1,8 +1,5 @@
 <template>
   <div class="wrapper">
-    <header>
-      <h1>Worls Wide Holidays</h1>
-    </header>
     <nuxt />
   </div>
 </template>
@@ -22,6 +19,6 @@ body,
 
 .wrapper {
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: 1fr;
 }
 </style>
