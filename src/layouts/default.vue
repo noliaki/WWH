@@ -1,11 +1,20 @@
 <template>
   <div class="wrapper">
+    <header>
+      <language />
+    </header>
     <nuxt />
   </div>
 </template>
 <script lang="ts">
 import Vue from 'vue'
-export default Vue.extend({})
+import Language from '~/components/Language.vue'
+
+export default Vue.extend({
+  components: {
+    Language
+  }
+})
 </script>
 <style lang="postcss">
 html,
@@ -19,6 +28,6 @@ body,
 
 .wrapper {
   display: grid;
-  grid-template-rows: 1fr;
+  grid-template-rows: auto 1fr;
 }
 </style>
