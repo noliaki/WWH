@@ -7,15 +7,17 @@
           <h2>{{ dateString }}</h2>
           <nuxt-link :to="nextMonthRoute" class="btn btn-next">next</nuxt-link>
         </div>
+      </div>
+      <div class="country-language">
         <button
           type="button"
           class="btn-country-select"
           @click.prevent="showCountrySelect"
         >
-          select country
+          select<br />country
         </button>
+        <language class="language" />
       </div>
-      <language class="language" />
     </header>
     <calendar :year="year" :month="month"></calendar>
   </main>
@@ -27,7 +29,7 @@ import Language from '~/components/Language.vue'
 import { int } from '~/utils'
 
 interface Data {
-  today: Date
+  targetDate: Date
 }
 
 export default Vue.extend({
@@ -37,20 +39,10 @@ export default Vue.extend({
   },
   data(): Data {
     return {
-      today: new Date()
+      targetDate: new Date()
     }
   },
   computed: {
-    targetDate(): Date {
-      const today: Date = new Date()
-
-      return new Date(
-        (this.$route.params.year && int(this.$route.params.year)) ||
-          today.getFullYear(),
-        (this.$route.params.month && int(this.$route.params.month) - 1) ||
-          today.getMonth()
-      )
-    },
     year(): number {
       return this.targetDate.getFullYear()
     },
@@ -86,6 +78,17 @@ export default Vue.extend({
       return `${this.year}/${this.month < 10 ? '0' : ''}${this.month}`
     }
   },
+  created(): void {
+    const today: Date = new Date()
+
+    const year: number = int(this.$route.params.year)
+    const monthIndex: number = int(this.$route.params.month) - 1
+
+    this.targetDate = new Date(
+      isNaN(year) ? today.getFullYear() : year,
+      isNaN(monthIndex) ? today.getMonth() : monthIndex
+    )
+  },
   methods: {
     onClick(): void {
       this.$store.dispatch('gapi/getHolidays', {
@@ -118,8 +121,8 @@ header {
   @apply text-center;
 }
 
-.language {
-  @apply absolute top-0 right-0 bottom-0;
+.country-language {
+  @apply absolute top-0 right-0 bottom-0 flex;
 }
 
 h2 {
@@ -138,6 +141,6 @@ h2 {
 }
 
 .btn-country-select {
-  @apply mt-4 py-1 px-4 text-sm bg-blue-200 text-blue-700 rounded-full;
+  @apply py-1 px-2 text-sm bg-blue-100 text-blue-600 leading-none;
 }
 </style>

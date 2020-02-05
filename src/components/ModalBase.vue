@@ -5,7 +5,11 @@
       <div class="modal-content">
         <slot></slot>
       </div>
-      <button type="button" @click.prevent="$emit('hideModal')">
+      <button
+        type="button"
+        class="btn-hide-modal"
+        @click.prevent="$emit('hideModal')"
+      >
         <span></span>
         <span></span>
       </button>
@@ -27,15 +31,14 @@ export default Vue.extend({})
 }
 
 .modal-container {
-  @apply m-auto relative bg-white rounded-lg p-6;
-  max-width: 95%;
+  @apply m-auto relative bg-white rounded-lg p-6 w-full;
 }
 
 .modal-content {
   @apply overflow-hidden;
 }
 
-button {
+.btn-hide-modal {
   @apply block bg-white absolute shadow-md border;
   top: -1em;
   right: -1em;
@@ -44,16 +47,16 @@ button {
   border-radius: 999em;
 }
 
-button > span {
+.btn-hide-modal > span {
   @apply block absolute m-auto inset-0 rounded-lg bg-gray-600;
   width: 50%;
   height: 2px;
 }
 
-button > span:first-child {
+.btn-hide-modal > span:first-child {
   transform: rotate(45deg);
 }
-button > span:last-child {
+.btn-hide-modal > span:last-child {
   transform: rotate(-45deg);
 }
 </style>

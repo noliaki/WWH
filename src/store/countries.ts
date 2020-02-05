@@ -9,6 +9,11 @@ export interface Country {
   languages: Language[]
 }
 
+export interface CalendarIdMap {
+  alpha2Code: string
+  countryCalendarId: string
+}
+
 export interface Language {
   // eslint-disable-next-line camelcase
   iso639_1: string
@@ -69,67 +74,67 @@ export const getters: GetterTree<State, undefined> = {
         return 0
       })
   },
-  calendarIdNames(): any {
+  calendarIdMaps(): CalendarIdMap[] {
     return [
       {
         alpha2Code: 'IS',
-        calendarIdName: 'is'
+        countryCalendarId: 'is'
       },
       {
         alpha2Code: 'AZ',
-        calendarIdName: 'az'
+        countryCalendarId: 'az'
       },
       {
         alpha2Code: 'IE',
-        calendarIdName: 'irish'
+        countryCalendarId: 'irish'
       },
       {
         alpha2Code: 'AF',
-        calendarIdName: 'af'
+        countryCalendarId: 'af'
       },
       {
         alpha2Code: 'US',
-        calendarIdName: 'usa'
+        countryCalendarId: 'usa'
       },
       {
         alpha2Code: 'AE',
-        calendarIdName: 'ae'
+        countryCalendarId: 'ae'
       },
       {
         alpha2Code: 'DZ',
-        calendarIdName: 'dz'
+        countryCalendarId: 'dz'
       },
       {
         alpha2Code: 'AR',
-        calendarIdName: 'ar'
+        countryCalendarId: 'ar'
       },
       {
         alpha2Code: 'AL',
-        calendarIdName: 'al'
+        countryCalendarId: 'al'
       },
       {
         alpha2Code: 'AW',
-        calendarIdName: 'aw'
+        countryCalendarId: 'aw'
       },
       {
         alpha2Code: 'AM',
-        calendarIdName: 'am'
+        countryCalendarId: 'am'
       },
       {
         alpha2Code: 'AI',
-        calendarIdName: 'ai'
+        countryCalendarId: 'ai'
       },
       {
         alpha2Code: 'AO',
-        calendarIdName: 'ao'
+        countryCalendarId: 'ao'
       },
       {
         alpha2Code: 'AG',
-        calendarIdName: 'ag'
+        countryCalendarId: 'ag'
       },
       {
         alpha2Code: 'AD',
-        calendarIdName: 'ad'
+        countryCalendarId: 'ad'
       }
     ]
   }

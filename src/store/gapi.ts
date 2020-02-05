@@ -1,5 +1,4 @@
 import { ActionTree, ActionContext, MutationTree } from 'vuex'
-import { mutationTypes } from './countries'
 
 declare const gapi: any
 
@@ -17,17 +16,17 @@ export const state: () => State = (): State => ({
   holidays: {}
 })
 
-export const murationTypes: { [key: string]: string } = {
+export const mutationType: { [key: string]: string } = {
   ON_UPDATE_SIGNEDIN_STATUS: 'ON_UPDATE_SIGNEDIN_STATUS',
   ON_DONE_CLIENT_INIT: 'ON_DONE_CLIENT_INIT',
   SET_HOLIDAYS: 'SET_HOLIDAYS'
 }
 
 export const mutations: MutationTree<State> = {
-  [murationTypes.ON_DONE_CLIENT_INIT](state: State): void {
+  [mutationType.ON_DONE_CLIENT_INIT](state: State): void {
     state.doneClientInit = true
   },
-  [murationTypes.SET_HOLIDAYS](
+  [mutationType.SET_HOLIDAYS](
     state: State,
     {
       calendarId,
@@ -35,6 +34,8 @@ export const mutations: MutationTree<State> = {
       result
     }: { calendarId: string; year: number; result: any }
   ): void {
+    console.log(calendarId, year, result)
+
     if (!state.holidays[calendarId]) {
       state.holidays[calendarId] = {}
     }
@@ -53,7 +54,7 @@ export const actions: ActionTree<State, any> = {
               throw new Error(err)
             })
 
-            commit(murationTypes.ON_DONE_CLIENT_INIT)
+            commit(mutationType.ON_DONE_CLIENT_INIT)
 
             resolve()
           },
@@ -97,23 +98,53 @@ export const actions: ActionTree<State, any> = {
     { state, commit }: ActionContext<State, undefined>,
     { calendarId, year }: { calendarId: string; year: number }
   ): Promise<void> {
-    if (state.holidays[calendarId] && state.holidays[calendarId][year]) {
+    if (state.holidays[calendarId] && state.holidays[calendarId][`${year}`]) {
       return
     }
 
-    const result = await gapi.client.calendar.events.list({
-      calendarId,
-      timeMin: new Date(year).toISOString(),
-      timeMax: new Date(year + 1, 1, 0).toISOString(),
-      showDeleted: false,
-      singleEvents: true,
-      orderBy: 'startTime'
-    })
+    try {
+      const result = await gapi.client.calendar.events.list({
+        calendarId,
+        timeMin: new Date(year).toISOString(),
+        timeMax: new Date(year + 1, 1, 0).toISOString(),
+        showDeleted: false,
+        singleEvents: true,
+        orderBy: 'startTime'
+      })
 
-    commit(mutationTypes.SET_HOLIDAYS, {
-      calendarId,
+      commit(mutationType.SET_HOLIDAYS, {
+        calendarId,
+        year,
+        result
+      })
+    } catch (error) {
+      console.log(calendarId, year)
+      console.log(error)
+    }
+  },
+  async fetchHolidays(
+    { state, dispatch }: ActionContext<State, undefined>,
+    {
       year,
-      result
+      calendarCountryIds,
+      language
+    }: { year: number; calendarCountryIds: string[]; language: string }
+  ): Promise<void> {
+    console.log(year, calendarCountryIds, language)
+    if (!state.doneClientInit) {
+      await dispatch('loadAndInit')
+    }
+
+    const request: Promise<void>[] = calendarCountryIds.map(
+      (id: string): Promise<void> =>
+        dispatch('fetchCountryHolidays', {
+          year,
+          calendarId: `${language.toLocaleLowerCase()}.${id.toLocaleLowerCase()}#holiday@group.v.calendar.google.com`
+        })
+    )
+
+    Promise.all(request).then((result: any[]): void => {
+      console.log(result)
     })
   }
 }

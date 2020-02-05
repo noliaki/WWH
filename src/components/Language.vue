@@ -1,7 +1,8 @@
 <template>
-  <div>
-    <label for="language">{{ selectedLanguage }}</label
-    ><select id="language" @input="onInput">
+  <div class="wrapper">
+    <div>Lang:</div>
+    <div class="selected-language">{{ selectedLanguage }}</div>
+    <select id="language" @input="onInput">
       <option disabled>select language</option>
       <option
         v-for="lang in languages"
@@ -49,12 +50,16 @@ export default Vue.extend({
 })
 </script>
 <style lang="postcss" scoped>
-div {
-  @apply text-sm relative bg-gray-300 overflow-hidden text-gray-500 flex justify-center items-center px-1;
+.wrapper {
+  @apply text-xs relative bg-gray-300 overflow-hidden text-gray-500 flex justify-center items-center p-2 flex-col leading-tight;
   min-width: 3em;
 }
 
+.selected-language {
+  @apply font-bold text-gray-700 text-sm;
+}
+
 select {
-  @apply absolute inset-0 opacity-0;
+  @apply absolute inset-0 opacity-0 w-full h-full;
 }
 </style>
