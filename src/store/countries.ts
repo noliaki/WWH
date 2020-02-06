@@ -7,11 +7,11 @@ export interface Country {
   alpha2Code: string
   timezones: string[]
   languages: Language[]
+  googleCalendarId?: string
 }
 
 export interface CalendarIdMap {
-  alpha2Code: string
-  countryCalendarId: string
+  [alpha2Code: string]: string
 }
 
 export interface Language {
@@ -30,25 +30,24 @@ export interface LangData {
 
 export interface State {
   list: Country[]
+  selectedCountries: Country[]
 }
 
-export const mutationTypes: { [key: string]: string } = {
-  SET_COUNTRY_DATA: 'SET_COUNTRY_DATA'
+export const mutationType: { [key: string]: string } = {
+  SET_COUNTRY_DATA: 'SET_COUNTRY_DATA',
+  SET_SELECTED_COUNTRY: 'SET_SELECTED_COUNTRY'
 }
 
 export const state: () => State = (): State => ({
-  list: []
+  list: [],
+  selectedCountries: []
 })
 
 export const getters: GetterTree<State, undefined> = {
   languages({ list }: State): Language[] {
     return list
       .reduce((prev: Language[], curr: Country): Language[] => {
-        prev = prev.concat(
-          curr.languages.map((lang: Language): Language & {
-            alpha2code: string
-          } => Object.assign({}, lang, { alpha2code: curr.alpha2Code }))
-        )
+        prev = prev.concat(curr.languages)
 
         return prev
       }, [])
@@ -74,87 +73,62 @@ export const getters: GetterTree<State, undefined> = {
         return 0
       })
   },
-  calendarIdMaps(): CalendarIdMap[] {
-    return [
-      {
-        alpha2Code: 'IS',
-        countryCalendarId: 'is'
-      },
-      {
-        alpha2Code: 'AZ',
-        countryCalendarId: 'az'
-      },
-      {
-        alpha2Code: 'IE',
-        countryCalendarId: 'irish'
-      },
-      {
-        alpha2Code: 'AF',
-        countryCalendarId: 'af'
-      },
-      {
-        alpha2Code: 'US',
-        countryCalendarId: 'usa'
-      },
-      {
-        alpha2Code: 'AE',
-        countryCalendarId: 'ae'
-      },
-      {
-        alpha2Code: 'DZ',
-        countryCalendarId: 'dz'
-      },
-      {
-        alpha2Code: 'AR',
-        countryCalendarId: 'ar'
-      },
-      {
-        alpha2Code: 'AL',
-        countryCalendarId: 'al'
-      },
-      {
-        alpha2Code: 'AW',
-        countryCalendarId: 'aw'
-      },
-      {
-        alpha2Code: 'AM',
-        countryCalendarId: 'am'
-      },
-      {
-        alpha2Code: 'AI',
-        countryCalendarId: 'ai'
-      },
-      {
-        alpha2Code: 'AO',
-        countryCalendarId: 'ao'
-      },
-      {
-        alpha2Code: 'AG',
-        countryCalendarId: 'ag'
-      },
-      {
-        alpha2Code: 'AD',
-        countryCalendarId: 'ad'
-      }
-    ]
+  calendarIdMap(): CalendarIdMap {
+    return {
+      IS: 'is',
+      AZ: 'az',
+      IE: 'irish',
+      AF: 'af',
+      US: 'usa',
+      AE: 'ae',
+      DZ: 'dz',
+      AR: 'ar',
+      AL: 'al',
+      AW: 'aw',
+      AM: 'am',
+      AI: 'ai',
+      AO: 'ao',
+      AG: 'ag',
+      AD: 'ad'
+    }
   }
 }
 
 export const mutations: MutationTree<State> = {
-  [mutationTypes.SET_COUNTRY_DATA](
+  [mutationType.SET_COUNTRY_DATA](
     state: State,
     countriesList: Country[]
   ): void {
     state.list = countriesList
+  },
+  [mutationType.SET_SELECTED_COUNTRY](
+    state: State,
+    selectedCountries: Country[]
+  ): void {
+    state.selectedCountries = selectedCountries
   }
 }
 
 export const actions: ActionTree<State, undefined> = {
-  async fetchAll({ commit }: ActionContext<State, undefined>): Promise<void> {
+  async fetchAll({
+    commit,
+    getters
+  }: ActionContext<State, undefined>): Promise<void> {
     const result: Country[] = await fetch(
       'https://restcountries.eu/rest/v2/all?fields=name;translations;alpha2Code;timezones;flag;languages'
     ).then((res: Response): Promise<Country[]> => res.json())
 
-    commit(mutationTypes.SET_COUNTRY_DATA, result)
+    result.forEach((country: Country): void => {
+      country.googleCalendarId =
+        getters.calendarIdMap[country.alpha2Code.toUpperCase()]
+    })
+
+    commit(mutationType.SET_COUNTRY_DATA, result)
+  },
+  setSelectedCountries(
+    { commit }: ActionContext<State, undefined>,
+    selectedCountries: Country[]
+  ): void {
+    commit(mutationType.SET_SELECTED_COUNTRY, selectedCountries)
   }
 }

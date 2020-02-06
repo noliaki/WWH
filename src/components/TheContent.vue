@@ -16,7 +16,6 @@
         >
           select<br />country
         </button>
-        <language class="language" />
       </div>
     </header>
     <calendar :year="year" :month="month"></calendar>
@@ -25,7 +24,6 @@
 <script lang="ts">
 import Vue from 'vue'
 import Calendar from '~/components/Calendar.vue'
-import Language from '~/components/Language.vue'
 import { int } from '~/utils'
 
 interface Data {
@@ -34,8 +32,7 @@ interface Data {
 
 export default Vue.extend({
   components: {
-    Calendar,
-    Language
+    Calendar
   },
   data(): Data {
     return {

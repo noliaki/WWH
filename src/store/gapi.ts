@@ -1,4 +1,5 @@
 import { ActionTree, ActionContext, MutationTree } from 'vuex'
+import { Country } from '~/store/countries'
 
 declare const gapi: any
 
@@ -75,30 +76,11 @@ export const actions: ActionTree<State, any> = {
       scope: 'https://www.googleapis.com/auth/calendar.events.readonly'
     })
   },
-  async getHolidays(
-    { dispatch, state },
-    { lang, countryId, year }
-  ): Promise<void> {
-    if (!state.doneClientInit) {
-      await dispatch('loadAndInit')
-    }
-
-    const res = await gapi.client.calendar.events.list({
-      calendarId: `${lang}.${countryId}#holiday@group.v.calendar.google.com`,
-      timeMin: new Date(year).toISOString(),
-      timeMax: new Date(year + 1, 1, 0).toISOString(),
-      showDeleted: false,
-      singleEvents: true,
-      orderBy: 'startTime'
-    })
-
-    console.log(res)
-  },
-  async fetchCountryHolidays(
+  async fetchYearHolidaysByCalendarId(
     { state, commit }: ActionContext<State, undefined>,
     { calendarId, year }: { calendarId: string; year: number }
   ): Promise<void> {
-    if (state.holidays[calendarId] && state.holidays[calendarId][`${year}`]) {
+    if (state.holidays[calendarId] && state.holidays[calendarId][year]) {
       return
     }
 
@@ -126,21 +108,21 @@ export const actions: ActionTree<State, any> = {
     { state, dispatch }: ActionContext<State, undefined>,
     {
       year,
-      calendarCountryIds,
+      selectedCountries,
       language
-    }: { year: number; calendarCountryIds: string[]; language: string }
+    }: { year: number; selectedCountries: Country[]; language: string }
   ): Promise<void> {
-    console.log(year, calendarCountryIds, language)
     if (!state.doneClientInit) {
       await dispatch('loadAndInit')
     }
 
-    const request: Promise<void>[] = calendarCountryIds.map(
-      (id: string): Promise<void> =>
-        dispatch('fetchCountryHolidays', {
+    const request: Promise<void>[] = selectedCountries.map(
+      (country: Country): Promise<void> => {
+        return dispatch('fetchYearHolidaysByCalendarId', {
           year,
-          calendarId: `${language.toLocaleLowerCase()}.${id.toLocaleLowerCase()}#holiday@group.v.calendar.google.com`
+          calendarId: `${language.toLocaleLowerCase()}.${(country.googleCalendarId as string).toLocaleLowerCase()}#holiday@group.v.calendar.google.com`
         })
+      }
     )
 
     Promise.all(request).then((result: any[]): void => {

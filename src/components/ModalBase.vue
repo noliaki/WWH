@@ -32,6 +32,7 @@ export default Vue.extend({})
 
 .modal-container {
   @apply m-auto relative bg-white rounded-lg p-6 w-full;
+  max-width: 800px;
 }
 
 .modal-content {
