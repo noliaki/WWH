@@ -2,18 +2,16 @@
   <modal-base @hideModal="hideModal">
     <div>
       <div>
+        <select-countries class="select" />
         <select-language class="select" />
       </div>
-      <div>
-        <select-countries class="select" />
-      </div>
-      <div>
+      <div class="select-action">
         <button
           type="button"
           class="btn-fetch-holiday"
           @click.prevent="onClickFetch"
         >
-          fetch HOLIDAYS
+          fetch Holidays
         </button>
       </div>
     </div>
@@ -50,17 +48,27 @@ export default Vue.extend({
         selectedCountries: this.selectedCountries,
         language: this.$store.state.language.selectedLanguage
       })
+
+      this.hideModal()
     }
   }
 })
 </script>
 <style lang="postcss" scoped>
 .select {
-  @apply bg-gray-100 rounded-lg p-4 block;
+  @apply bg-gray-200 rounded-lg p-2 block border;
   width: 100%;
 }
 
+.select + .select {
+  @apply mt-2;
+}
+
 .btn-fetch-holiday {
-  @apply bg-blue-100 rounded-full py-1 px-4;
+  @apply bg-blue-400 rounded-full py-1 px-4 text-blue-800;
+}
+
+.select-action {
+  @apply text-center mt-4;
 }
 </style>

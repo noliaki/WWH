@@ -7,19 +7,22 @@
     >
       {{ weekDay }}
     </div>
-    <div
+    <calendar-date
       v-for="(date, index) in dates"
       :key="index"
       class="calendar-cell calendar-date"
-      :class="{ '-outMonth': date.outMonth }"
-    >
-      {{ date.dateNum }}
-    </div>
+      :date="date"
+    />
   </div>
 </template>
 <script lang="ts">
 import Vue from 'vue'
+import CalendarDate from '~/components/CalendarDate.vue'
+
 export default Vue.extend({
+  components: {
+    CalendarDate
+  },
   props: {
     year: {
       type: Number,
@@ -51,11 +54,7 @@ export default Vue.extend({
 
     for (let i: number = 0; i < len; i++) {
       const date: number = i + 1 - startDateDay
-      const targetDate: Date = new Date(this.year, this.month - 1, date)
-      this.dates[i] = {
-        dateNum: targetDate.getDate(),
-        outMonth: date < 1 || date > endDateDate
-      }
+      this.dates[i] = new Date(this.year, this.month - 1, date)
     }
   }
 })
@@ -69,7 +68,7 @@ export default Vue.extend({
 }
 
 .calendar-cell {
-  @apply py-2 px-4 border-l text-right;
+  @apply py-1 px-2 border-l text-right;
 }
 
 .calendar-date {
