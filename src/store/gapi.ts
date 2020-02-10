@@ -30,18 +30,26 @@ export const mutations: MutationTree<State> = {
   [mutationType.SET_HOLIDAYS](
     state: State,
     {
-      calendarId,
       year,
-      result
-    }: { calendarId: string; year: number; result: any }
+      holidays,
+      alpha2Code,
+      language
+    }: {
+      year: number
+      holidays: any
+      alpha2Code: string
+      language: string
+    }
   ): void {
-    console.log(calendarId, year, result)
-
-    if (!state.holidays[calendarId]) {
-      state.holidays[calendarId] = {}
+    if (!state.holidays[language]) {
+      state.holidays[language] = {}
+      state.holidays[language][year] = []
     }
 
-    state.holidays[calendarId][year] = result
+    state.holidays[language][year].push({
+      alpha2Code,
+      holidays
+    })
   }
 }
 
@@ -78,14 +86,29 @@ export const actions: ActionTree<State, any> = {
   },
   async fetchYearHolidaysByCalendarId(
     { state, commit }: ActionContext<State, undefined>,
-    { calendarId, year }: { calendarId: string; year: number }
+    {
+      calendarId,
+      year,
+      alpha2Code,
+      language
+    }: {
+      calendarId: string
+      year: number
+      alpha2Code: string
+      language: string
+    }
   ): Promise<void> {
-    if (state.holidays[calendarId] && state.holidays[calendarId][year]) {
+    if (
+      state.holidays[language] &&
+      state.holidays[language][year].find(
+        (item: any): boolean => item.alpha2Code === alpha2Code
+      )
+    ) {
       return
     }
 
     try {
-      const result = await gapi.client.calendar.events.list({
+      const res = await gapi.client.calendar.events.list({
         calendarId,
         timeMin: new Date(year).toISOString(),
         timeMax: new Date(year + 1, 1, 0).toISOString(),
@@ -94,10 +117,13 @@ export const actions: ActionTree<State, any> = {
         orderBy: 'startTime'
       })
 
+      console.log(res)
+
       commit(mutationType.SET_HOLIDAYS, {
-        calendarId,
+        alpha2Code,
         year,
-        result
+        language,
+        holidays: res.result.items
       })
     } catch (error) {
       console.log(calendarId, year)
@@ -120,6 +146,8 @@ export const actions: ActionTree<State, any> = {
       (country: Country): Promise<void> => {
         return dispatch('fetchYearHolidaysByCalendarId', {
           year,
+          alpha2Code: country.alpha2Code,
+          language,
           calendarId: `${language.toLocaleLowerCase()}.${(country.googleCalendarId as string).toLocaleLowerCase()}#holiday@group.v.calendar.google.com`
         })
       }
