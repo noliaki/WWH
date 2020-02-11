@@ -1,6 +1,10 @@
 <template>
   <div class="cell-wrapper" :class="{ '-holiday': isHoliday }">
-    <button :class="{ '-isOutMonth': isOutMonth }">
+    <button
+      class="cell-btn"
+      :class="{ '-isOutMonth': isOutMonth }"
+      @click.prevent="onClickDate"
+    >
       <div class="cell-content">
         {{ date.getDate() }}
         <div v-if="isHoliday" class="cell-holidays">
@@ -37,35 +41,10 @@ export default Vue.extend({
     selectedLanguage(): string {
       return this.$store.state.language.selectedLanguage
     },
-    holidaysInYear(): any[] {
-      return (
-        (this.$store.state.gapi.holidays[this.selectedLanguage] &&
-          this.$store.state.gapi.holidays[this.selectedLanguage][
-            this.$route.params.year
-          ]) ||
-        []
-      )
-    },
     holidayCountries(): any[] {
-      return this.holidaysInYear.reduce((prev: any, current: any): any[] => {
-        const holidays = current.holidays
-          .filter((holidayData: any): boolean => {
-            return (
-              this.formattedDate >= holidayData.start.date &&
-              this.formattedDate < holidayData.end.date
-            )
-          })
-          .map((holiday: any): any => ({
-            summary: holiday.summary,
-            alpha2Code: current.alpha2Code
-          }))
-
-        if (holidays.length > 0) {
-          prev = prev.concat(holidays)
-        }
-
-        return prev
-      }, [])
+      return this.$store.getters['gapi/getCountryHolidaysByDateString'](
+        this.formattedDate
+      )
     },
     isHoliday(): boolean {
       return this.holidayCountries.length > 0
@@ -74,6 +53,10 @@ export default Vue.extend({
   methods: {
     getFragEmojiByCountryCode(countryCode: string): string {
       return flag(countryCode)
+    },
+    onClickDate(): void {
+      this.$store.dispatch('gapi/setTargetDateString', this.formattedDate)
+      this.$store.dispatch('modal/showTargetDate')
     }
   }
 })
@@ -83,8 +66,12 @@ export default Vue.extend({
   @apply relative;
 }
 
-.cell-wrapper > button {
-  @apply block absolute inset-0 w-full h-full;
+.cell-btn {
+  @apply block absolute inset-0 w-full h-full pointer-events-none;
+}
+
+.-holiday > .cell-btn {
+  @apply pointer-events-auto;
 }
 
 .cell-content {
@@ -100,6 +87,6 @@ export default Vue.extend({
 }
 
 .cell-holidays {
-  @apply flex flex-wrap;
+  @apply flex flex-wrap leading-none overflow-hidden;
 }
 </style>

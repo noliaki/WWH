@@ -2,22 +2,24 @@
   <div class="wrapper">
     <nuxt />
     <transition name="fade">
-      <modal-country-select v-show="isShownCountrySelect" />
+      <modal-country-select v-show="$store.state.modal.isShownCountrySelect" />
+    </transition>
+    <transition name="fade">
+      <country-holidays-in-target-date
+        v-show="$store.state.modal.isShownTargetDate"
+      />
     </transition>
   </div>
 </template>
 <script lang="ts">
 import Vue from 'vue'
 import ModalCountrySelect from '~/components/ModalCountrySelect.vue'
+import CountryHolidaysInTargetDate from '~/components/CountryHolidaysInTargetDate.vue'
 
 export default Vue.extend({
   components: {
-    ModalCountrySelect
-  },
-  computed: {
-    isShownCountrySelect(): boolean {
-      return this.$store.state.modal.isShownCountrySelect
-    }
+    ModalCountrySelect,
+    CountryHolidaysInTargetDate
   }
 })
 </script>

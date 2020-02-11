@@ -1,26 +1,93 @@
-import { ActionTree, ActionContext, MutationTree } from 'vuex'
+import { ActionTree, ActionContext, MutationTree, GetterTree } from 'vuex'
 import { Country } from '~/store/countries'
 
 declare const gapi: any
 
+interface CountryHolidays {
+  alpha2Code: string
+  language: string
+  year: number
+  summary: string
+  holidays: any[]
+}
+
 export interface State {
   doneClientInit: boolean
-  holidays: {
-    [key: string]: {
-      [key: string]: any
-    }
-  }
+  holidays: CountryHolidays[]
+  targetDateString: string | undefined
 }
 
 export const state: () => State = (): State => ({
   doneClientInit: false,
-  holidays: {}
+  holidays: [],
+  targetDateString: ''
 })
+
+export const getters: GetterTree<State, never> = {
+  hasHolidays: ({ holidays }: State) => ({
+    alpha2Code,
+    language,
+    year
+  }: {
+    alpha2Code: string
+    language: string
+    year: number
+  }): boolean =>
+    holidays.find(
+      (item: CountryHolidays): boolean =>
+        item.alpha2Code === alpha2Code &&
+        item.language === language &&
+        item.year === year
+    ) !== undefined,
+  getCountryHolidaysByDateString: ({ holidays }: State) => (
+    dateString: string
+  ): { alpha2Code: string; holidaySummaries: string[]; summary: string }[] => {
+    return holidays.reduce(
+      (
+        prev: {
+          alpha2Code: string
+          holidaySummaries: string[]
+          summary: string
+        }[],
+        current: CountryHolidays
+      ): {
+        alpha2Code: string
+        holidaySummaries: string[]
+        summary: string
+      }[] => {
+        const holidaySummaries = current.holidays
+          .filter(
+            (holiday: any): boolean =>
+              dateString >= holiday.start.date && dateString < holiday.end.date
+          )
+          .map((item: any): string => item.summary)
+
+        if (holidaySummaries.length > 0) {
+          prev.push({
+            alpha2Code: current.alpha2Code,
+            summary: current.summary,
+            holidaySummaries
+          })
+        }
+
+        return prev
+      },
+      []
+    )
+  },
+  getTargetCountryHolidays(
+    { targetDateString }: State,
+    getters: any
+  ): { alpha2Code: string; holidaySummaries: string[] }[] {
+    return getters.getCountryHolidaysByDateString(targetDateString)
+  }
+}
 
 export const mutationType: { [key: string]: string } = {
   ON_UPDATE_SIGNEDIN_STATUS: 'ON_UPDATE_SIGNEDIN_STATUS',
   ON_DONE_CLIENT_INIT: 'ON_DONE_CLIENT_INIT',
-  SET_HOLIDAYS: 'SET_HOLIDAYS'
+  SET_HOLIDAYS: 'SET_HOLIDAYS',
+  SET_TARGET_DATE: 'SET_TARGET_DATE'
 }
 
 export const mutations: MutationTree<State> = {
@@ -33,23 +100,26 @@ export const mutations: MutationTree<State> = {
       year,
       holidays,
       alpha2Code,
-      language
+      language,
+      summary
     }: {
       year: number
       holidays: any
       alpha2Code: string
       language: string
+      summary: string
     }
   ): void {
-    if (!state.holidays[language]) {
-      state.holidays[language] = {}
-      state.holidays[language][year] = []
-    }
-
-    state.holidays[language][year].push({
+    state.holidays.push({
+      year,
+      holidays,
       alpha2Code,
-      holidays
+      language,
+      summary
     })
+  },
+  [mutationType.SET_TARGET_DATE](state: State, targetDateString: string): void {
+    state.targetDateString = targetDateString
   }
 }
 
@@ -85,7 +155,7 @@ export const actions: ActionTree<State, any> = {
     })
   },
   async fetchYearHolidaysByCalendarId(
-    { state, commit }: ActionContext<State, undefined>,
+    { commit, getters }: ActionContext<State, undefined>,
     {
       calendarId,
       year,
@@ -98,12 +168,7 @@ export const actions: ActionTree<State, any> = {
       language: string
     }
   ): Promise<void> {
-    if (
-      state.holidays[language] &&
-      state.holidays[language][year].find(
-        (item: any): boolean => item.alpha2Code === alpha2Code
-      )
-    ) {
+    if (getters.hasHolidays({ alpha2Code, language, year })) {
       return
     }
 
@@ -111,7 +176,7 @@ export const actions: ActionTree<State, any> = {
       const res = await gapi.client.calendar.events.list({
         calendarId,
         timeMin: new Date(year).toISOString(),
-        timeMax: new Date(year + 1, 1, 0).toISOString(),
+        timeMax: new Date(year + 1, 0, 0).toISOString(),
         showDeleted: false,
         singleEvents: true,
         orderBy: 'startTime'
@@ -123,6 +188,7 @@ export const actions: ActionTree<State, any> = {
         alpha2Code,
         year,
         language,
+        summary: res.result.summary,
         holidays: res.result.items
       })
     } catch (error) {
@@ -156,5 +222,11 @@ export const actions: ActionTree<State, any> = {
     Promise.all(request).then((result: any[]): void => {
       console.log(result)
     })
+  },
+  setTargetDateString(
+    { commit }: ActionContext<State, undefined>,
+    targetDateString: string
+  ): void {
+    commit(mutationType.SET_TARGET_DATE, targetDateString)
   }
 }

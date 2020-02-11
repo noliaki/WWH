@@ -89,7 +89,30 @@ export const getters: GetterTree<State, undefined> = {
       AI: 'ai',
       AO: 'ao',
       AG: 'ag',
-      AD: 'ad'
+      AD: 'ad',
+      YE: 'ye',
+      GB: 'uk',
+      IL: 'jewish',
+      IT: 'italian',
+      IQ: 'iq',
+      IR: 'ir',
+      ID: 'indonesian',
+      IN: 'indian',
+      WF: 'wf',
+      UG: 'ug',
+      UA: 'ukrainian',
+      UZ: 'uz',
+      UY: 'uy',
+      EC: 'ec',
+      EG: 'eg',
+      EE: 'ee',
+      ET: 'et',
+      ER: 'er',
+      SV: 'sv',
+      AU: 'australian',
+      AT: 'austrian',
+      OM: 'om',
+      NL: 'dutch'
     }
   }
 }
@@ -121,6 +144,10 @@ export const actions: ActionTree<State, undefined> = {
     result.forEach((country: Country): void => {
       country.googleCalendarId =
         getters.calendarIdMap[country.alpha2Code.toUpperCase()]
+    })
+
+    result.forEach((item: any) => {
+      console.log(item.name, item.alpha2Code)
     })
 
     commit(mutationType.SET_COUNTRY_DATA, result)
