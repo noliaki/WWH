@@ -4,7 +4,10 @@
       <div class="header-inner">
         <div class="heading">
           <nuxt-link :to="prevMonthRoute" class="btn btn-prev">prev</nuxt-link>
-          <h2>{{ dateString }}</h2>
+          <h2>
+            <span class="header-year">{{ year }}</span
+            >.<span class="header-month">{{ month }}</span>
+          </h2>
           <nuxt-link :to="nextMonthRoute" class="btn btn-next">next</nuxt-link>
         </div>
       </div>
@@ -86,9 +89,6 @@ export default Vue.extend({
           month: prevMonthDate.getMonth() + 1
         }
       }
-    },
-    dateString(): string {
-      return `${this.year}/${this.month < 10 ? '0' : ''}${this.month}`
     }
   },
   created(): void {
@@ -138,8 +138,12 @@ header {
   @apply absolute top-0 right-0 bottom-0 flex;
 }
 
-h2 {
-  @apply text-lg font-bold;
+.header-year {
+  @apply text-base;
+}
+
+.header-month {
+  @apply text-xl font-bold;
 }
 
 .btn {

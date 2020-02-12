@@ -1,5 +1,6 @@
 import { ActionTree, ActionContext, MutationTree, GetterTree } from 'vuex'
 import { Country } from '~/store/countries'
+import { dateFormat } from '~/utils'
 
 declare const gapi: any
 
@@ -14,13 +15,169 @@ interface CountryHolidays {
 export interface State {
   doneClientInit: boolean
   holidays: CountryHolidays[]
-  targetDateString: string | undefined
+  targetDate: Date | undefined
+}
+
+export interface ResponceCalendar {
+  kind: 'calendar#events'
+  etag: string
+  summary: string
+  description: string
+  updated: string
+  timeZone: string
+  accessRole: string
+  defaultReminders: {
+    method: string
+    minutes: number
+  }[]
+  nextPageToken: string
+  nextSyncToken: string
+  items: Resource[]
+}
+
+export interface Resource {
+  kind: 'calendar#event'
+  etag: string
+  id: string
+  status: string
+  htmlLink: string
+  created: string
+  updated: string
+  summary: string
+  description: string
+  location: string
+  colorId: string
+  creator: {
+    id: string
+    email: string
+    displayName: string
+    self: boolean
+  }
+  organizer: {
+    id: string
+    email: string
+    displayName: string
+    self: boolean
+  }
+  start: {
+    date: string
+    dateTime: string
+    timeZone: string
+  }
+  end: {
+    date: string
+    dateTime: string
+    timeZone: string
+  }
+  endTimeUnspecified: boolean
+  recurrence: string[]
+  recurringEventId: string
+  originalStartTime: {
+    date: string
+    dateTime: string
+    timeZone: string
+  }
+  transparency: string
+  visibility: string
+  iCalUID: string
+  sequence: number
+  attendees: {
+    id: string
+    email: string
+    displayName: string
+    organizer: boolean
+    self: boolean
+    resource: boolean
+    optional: boolean
+    responseStatus: string
+    comment: string
+    additionalGuests: number
+  }[]
+  attendeesOmitted: boolean
+  extendedProperties: {
+    private: {
+      [key: string]: string
+    }
+    shared: {
+      [key: string]: string
+    }
+  }
+  hangoutLink: string
+  conferenceData: {
+    createRequest: {
+      requestId: string
+      conferenceSolutionKey: {
+        type: string
+      }
+      status: {
+        statusCode: string
+      }
+    }
+    entryPoints: {
+      entryPointType: string
+      uri: string
+      label: string
+      pin: string
+      accessCode: string
+      meetingCode: string
+      passcode: string
+      password: string
+    }[]
+    conferenceSolution: {
+      key: {
+        type: string
+      }
+      name: string
+      iconUri: string
+    }
+    conferenceId: string
+    signature: string
+    notes: string
+    gadget: {
+      type: string
+      title: string
+      link: string
+      iconLink: string
+      width: number
+      height: number
+      display: string
+      preferences: {
+        [key: string]: string
+      }
+    }
+    anyoneCanAddSelf: boolean
+    guestsCanInviteOthers: boolean
+    guestsCanModify: boolean
+    guestsCanSeeOtherGuests: boolean
+    privateCopy: boolean
+    locked: boolean
+    reminders: {
+      useDefault: boolean
+      overrides: [
+        {
+          method: string
+          minutes: number
+        }
+      ]
+    }
+    source: {
+      url: string
+      title: string
+    }
+    attachments: {
+      fileUrl: string
+      title: string
+      mimeType: string
+      iconLink: string
+      fileId: string
+    }[]
+  }
 }
 
 export const state: () => State = (): State => ({
   doneClientInit: false,
   holidays: [],
-  targetDateString: ''
+  targetDate: new Date()
 })
 
 export const getters: GetterTree<State, never> = {
@@ -76,10 +233,17 @@ export const getters: GetterTree<State, never> = {
     )
   },
   getTargetCountryHolidays(
-    { targetDateString }: State,
+    { targetDate }: State,
     getters: any
-  ): { alpha2Code: string; holidaySummaries: string[] }[] {
-    return getters.getCountryHolidaysByDateString(targetDateString)
+  ): { alpha2Code: string; holidaySummaries: string[] }[] | undefined {
+    if (!targetDate) return
+
+    return getters.getCountryHolidaysByDateString(dateFormat(targetDate))
+  },
+  targetDateString({ targetDate }: State): string | undefined {
+    if (!targetDate) return
+
+    return dateFormat(targetDate)
   }
 }
 
@@ -118,8 +282,8 @@ export const mutations: MutationTree<State> = {
       summary
     })
   },
-  [mutationType.SET_TARGET_DATE](state: State, targetDateString: string): void {
-    state.targetDateString = targetDateString
+  [mutationType.SET_TARGET_DATE](state: State, targetDate: Date): void {
+    state.targetDate = targetDate
   }
 }
 
@@ -175,11 +339,12 @@ export const actions: ActionTree<State, any> = {
     try {
       const res = await gapi.client.calendar.events.list({
         calendarId,
-        timeMin: new Date(year).toISOString(),
-        timeMax: new Date(year + 1, 0, 0).toISOString(),
+        timeMin: new Date(year, 0, 1).toISOString(),
+        timeMax: new Date(year + 1, 0, 1).toISOString(),
         showDeleted: false,
         singleEvents: true,
-        orderBy: 'startTime'
+        orderBy: 'startTime',
+        alwaysIncludeEmail: false
       })
 
       console.log(res)
@@ -223,10 +388,10 @@ export const actions: ActionTree<State, any> = {
       console.log(result)
     })
   },
-  setTargetDateString(
+  setTargetDate(
     { commit }: ActionContext<State, undefined>,
-    targetDateString: string
+    targetDate: Date
   ): void {
-    commit(mutationType.SET_TARGET_DATE, targetDateString)
+    commit(mutationType.SET_TARGET_DATE, targetDate)
   }
 }

@@ -12,6 +12,7 @@
       :key="index"
       class="calendar-cell calendar-date"
       :date="date"
+      :index="index"
     />
   </div>
 </template>
@@ -79,11 +80,7 @@ export default Vue.extend({
   /* @apply opacity-25; */
 }
 
-.calendar-date:nth-child(7n) {
-  @apply bg-blue-100 text-blue-700;
-}
 .calendar-date:nth-child(7n + 1) {
   border-left: none;
-  @apply bg-red-100 text-red-700;
 }
 </style>

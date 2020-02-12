@@ -1,28 +1,35 @@
 <template>
   <modal-base @hideModal="hideModal">
-    <ul class="holiday-list">
-      <li
-        v-for="(item, index) in targetDateCountryHolidays"
-        :key="index"
-        class="holiday-item"
-      >
-        <div class="holiday-emoji">
-          {{ $countryEmojiFlag(item.alpha2Code) }}
-        </div>
-        <div class="holiday-country">
-          <div class="holiday-country-summary">{{ item.summary }}</div>
-          <ul class="holiday-country-list">
-            <li
-              v-for="(summary, sIndex) in item.holidaySummaries"
-              :key="'summary-' + sIndex"
-              class="holiday-country-item"
-            >
-              {{ summary }}
-            </li>
-          </ul>
-        </div>
-      </li>
-    </ul>
+    <div>
+      <h2>
+        {{ targetDate.getFullYear() }}.{{ targetDate.getMonth() + 1 }}.{{
+          targetDate.getDate()
+        }}
+      </h2>
+      <ul class="holiday-list">
+        <li
+          v-for="(item, index) in targetDateCountryHolidays"
+          :key="index"
+          class="holiday-item"
+        >
+          <div class="holiday-emoji">
+            {{ $countryEmojiFlag(item.alpha2Code) }}
+          </div>
+          <div class="holiday-country">
+            <div class="holiday-country-summary">{{ item.summary }}</div>
+            <ul class="holiday-country-list">
+              <li
+                v-for="(summary, sIndex) in item.holidaySummaries"
+                :key="'summary-' + sIndex"
+                class="holiday-country-item"
+              >
+                {{ summary }}
+              </li>
+            </ul>
+          </div>
+        </li>
+      </ul>
+    </div>
   </modal-base>
 </template>
 <script lang="ts">
@@ -40,6 +47,9 @@ export default Vue.extend({
       summary: string
     }[] {
       return this.$store.getters['gapi/getTargetCountryHolidays']
+    },
+    targetDate(): Date {
+      return this.$store.state.gapi.targetDate
     }
   },
   methods: {
@@ -50,6 +60,10 @@ export default Vue.extend({
 })
 </script>
 <style lang="postcss" scoped>
+h2 {
+  @apply text-center font-bold;
+}
+
 .holiday-item {
   @apply flex py-2;
 }
