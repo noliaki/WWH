@@ -1,6 +1,12 @@
 import { Configuration } from '@nuxt/types'
 import TerserPlugin from 'terser-webpack-plugin'
 
+const modules: any[] = ['@nuxtjs/pwa']
+
+if (process.env.NODE_ENV !== 'production') {
+  modules.push(['@nuxtjs/dotenv', { path: './' }])
+}
+
 const config: Configuration = {
   mode: 'universal',
   /*
@@ -44,13 +50,7 @@ const config: Configuration = {
   /*
    ** Nuxt.js modules
    */
-  modules: [
-    '@nuxtjs/pwa',
-    // Doc: https://github.com/nuxt-community/dotenv-module
-    process.env.NODE_ENV === 'production'
-      ? null
-      : ['@nuxtjs/dotenv', { path: './' }]
-  ],
+  modules,
   /*
    ** Build configuration
    */
