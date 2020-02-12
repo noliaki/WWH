@@ -310,8 +310,8 @@ export const actions: ActionTree<State, any> = {
   },
   async init(): Promise<void> {
     await gapi.client.init({
-      apiKey: process.env.API_KEY,
-      clientId: process.env.CLIENT_ID,
+      apiKey: process.env.GAPI_API_KEY,
+      clientId: process.env.GAPI_CLIENT_ID,
       discoveryDocs: [
         'https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest'
       ],
