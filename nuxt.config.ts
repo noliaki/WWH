@@ -47,7 +47,9 @@ const config: Configuration = {
   modules: [
     '@nuxtjs/pwa',
     // Doc: https://github.com/nuxt-community/dotenv-module
-    ['@nuxtjs/dotenv', { path: './' }]
+    process.env.NODE_ENV === 'production'
+      ? null
+      : ['@nuxtjs/dotenv', { path: './' }]
   ],
   /*
    ** Build configuration
