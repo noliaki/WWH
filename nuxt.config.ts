@@ -1,5 +1,4 @@
 import { Configuration } from '@nuxt/types'
-import TerserPlugin from 'terser-webpack-plugin'
 
 const modules: any[] = ['@nuxtjs/pwa']
 
@@ -55,26 +54,15 @@ const config: Configuration = {
    ** Build configuration
    */
   build: {
+    terser: {
+      terserOptions: {
+        compress: { drop_console: process.env.NODE_ENV === 'production' }
+      }
+    }
     /*
      ** You can extend webpack config here
      */
-    extend(config, { isClient }): void {
-      if (!config.optimization || !isClient) return
-
-      if (!config.optimization.minimizer) {
-        config.optimization.minimizer = []
-      }
-
-      config.optimization.minimizer.push(
-        new TerserPlugin({
-          terserOptions: {
-            compress: {
-              drop_console: process.env.NODE_ENV === 'production'
-            }
-          }
-        })
-      )
-    }
+    // extend(config, { isClient }): void {}
   },
   srcDir: 'src',
   router: {
