@@ -1,5 +1,15 @@
 {
   "version": 2,
+  "env": {
+    "GAPI_API_KEY": "@gapi_api_key",
+    "GAPI_CLIENT_KEY": "@gapi_client_id"
+  },
+  "build": {
+    "env": {
+      "GAPI_API_KEY": "@gapi_api_key",
+      "GAPI_CLIENT_KEY": "@gapi_client_id"
+    }
+  },
   "builds": [
     {
       "src": "nuxt.config.ts",

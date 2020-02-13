@@ -4,7 +4,8 @@
     :class="{
       '-holiday': isHoliday,
       '-sunday': index % 7 === 0,
-      '-saturday': (index % 7) - 6 === 0
+      '-saturday': (index % 7) - 6 === 0,
+      '-waiting': isWaiting && holidays.length > 0
     }"
   >
     <button
@@ -14,11 +15,13 @@
     >
       <div class="cell-content">
         <div class="cell-date">{{ date.getDate() }}</div>
-        <div v-if="isHoliday" class="cell-holidays">
-          <span v-for="(holiday, hIndex) in holidayCountries" :key="hIndex">
-            {{ getFragEmojiByCountryCode(holiday.alpha2Code) }}
-          </span>
-        </div>
+        <transition name="fade">
+          <div v-if="isHoliday" class="cell-holidays">
+            <span v-for="(holiday, hIndex) in holidayCountries" :key="hIndex">
+              {{ getFragEmojiByCountryCode(holiday.alpha2Code) }}
+            </span>
+          </div>
+        </transition>
       </div>
     </button>
   </div>
@@ -31,6 +34,7 @@ import { int, dateFormat } from '~/utils'
 interface Data {
   timerId: number | undefined
   holidayCountries: any[]
+  isWaiting: boolean
 }
 
 export default Vue.extend({
@@ -47,7 +51,8 @@ export default Vue.extend({
   data(): Data {
     return {
       timerId: undefined,
-      holidayCountries: []
+      holidayCountries: [],
+      isWaiting: false
     }
   },
   computed: {
@@ -74,11 +79,10 @@ export default Vue.extend({
   },
   beforeDestroy(): void {
     this.stopTimer()
+    this.isWaiting = false
   },
   mounted(): void {
-    this.timerId = window.setTimeout(() => {
-      this.getHoliday()
-    }, this.index * 30)
+    this.startTimer()
   },
   methods: {
     getFragEmojiByCountryCode(countryCode: string): string {
@@ -94,10 +98,12 @@ export default Vue.extend({
       ](dateFormat(this.date))
     },
     startTimer(): void {
+      this.isWaiting = true
       this.stopTimer()
       this.timerId = window.setTimeout(() => {
         this.getHoliday()
-      }, this.index * 100)
+        this.isWaiting = false
+      }, this.index * 60)
     },
     stopTimer(): void {
       if (this.timerId) {
@@ -110,6 +116,28 @@ export default Vue.extend({
 <style lang="postcss" scoped>
 .cell-wrapper {
   @apply relative;
+}
+
+.cell-wrapper::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 3vw;
+  height: 3vw;
+  margin: auto;
+  border-radius: 999em;
+  border: 3px solid #81e6d9;
+  opacity: 0;
+  border-top: 3px solid #e6fffa;
+  transition: opacity 300ms linear;
+}
+
+.cell-wrapper.-waiting::after {
+  opacity: 1;
+  animation: loading 700ms linear 0s infinite normal forwards;
 }
 
 .cell-btn {
@@ -144,5 +172,14 @@ export default Vue.extend({
 
 .cell-holidays {
   @apply flex-grow leading-none overflow-auto;
+}
+
+@keyframes loading {
+  0% {
+    transform: rotate(0);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 </style>

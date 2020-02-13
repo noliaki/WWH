@@ -20,10 +20,22 @@ export default Vue.extend({
   components: {
     ModalCountrySelect,
     CountryHolidaysInTargetDate
-  }
+  },
+  middleware: 'redirectIfNoDate'
 })
 </script>
 <style lang="postcss">
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+*::before,
+*::after {
+  pointer-events: none;
+}
+
 html,
 body,
 #__nuxt,

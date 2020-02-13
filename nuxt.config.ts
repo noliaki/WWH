@@ -67,6 +67,10 @@ const config: Configuration = {
   srcDir: 'src',
   router: {
     base: '/'
+  },
+  env: {
+    GAPI_API_KEY: process.env.GAPI_API_KEY || '',
+    GAPI_CLIENT_KEY: process.env.GAPI_CLIENT_KEY || ''
   }
 }
 
