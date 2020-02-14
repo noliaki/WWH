@@ -173,13 +173,4 @@ export default Vue.extend({
 .cell-holidays {
   @apply flex-grow leading-none overflow-auto;
 }
-
-@keyframes loading {
-  0% {
-    transform: rotate(0);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
 </style>

@@ -9,13 +9,14 @@ interface CountryHolidays {
   language: string
   year: number
   summary: string
-  holidays: any[]
+  holidays: HolidayData[]
 }
 
 export interface State {
   doneClientInit: boolean
   holidays: CountryHolidays[]
   targetDate: Date | undefined
+  isFetching: boolean
 }
 
 export interface ResponceCalendar {
@@ -174,10 +175,25 @@ export interface Resource {
   }
 }
 
+interface HolidayData {
+  start: {
+    date: string
+    dateTime: string
+    timeZone: string
+  }
+  end: {
+    date: string
+    dateTime: string
+    timeZone: string
+  }
+  summary: string
+}
+
 export const state: () => State = (): State => ({
   doneClientInit: false,
   holidays: [],
-  targetDate: new Date()
+  targetDate: new Date(),
+  isFetching: false
 })
 
 export const getters: GetterTree<State, never> = {
@@ -251,7 +267,9 @@ export const mutationType: { [key: string]: string } = {
   ON_UPDATE_SIGNEDIN_STATUS: 'ON_UPDATE_SIGNEDIN_STATUS',
   ON_DONE_CLIENT_INIT: 'ON_DONE_CLIENT_INIT',
   SET_HOLIDAYS: 'SET_HOLIDAYS',
-  SET_TARGET_DATE: 'SET_TARGET_DATE'
+  SET_TARGET_DATE: 'SET_TARGET_DATE',
+  START_FETCHING: 'START_FETCHING',
+  FINISH_FETCHING: 'FINISH_FETCHING'
 }
 
 export const mutations: MutationTree<State> = {
@@ -268,7 +286,7 @@ export const mutations: MutationTree<State> = {
       summary
     }: {
       year: number
-      holidays: any
+      holidays: HolidayData[]
       alpha2Code: string
       language: string
       summary: string
@@ -284,6 +302,12 @@ export const mutations: MutationTree<State> = {
   },
   [mutationType.SET_TARGET_DATE](state: State, targetDate: Date): void {
     state.targetDate = targetDate
+  },
+  [mutationType.START_FETCHING](state: State): void {
+    state.isFetching = true
+  },
+  [mutationType.FINISH_FETCHING](state: State): void {
+    state.isFetching = false
   }
 }
 
@@ -354,7 +378,13 @@ export const actions: ActionTree<State, any> = {
         year,
         language,
         summary: res.result.summary,
-        holidays: res.result.items
+        holidays: (res.result.items as Resource[]).map(
+          (holiday: Resource): HolidayData => ({
+            start: holiday.start,
+            end: holiday.end,
+            summary: holiday.summary
+          })
+        ) as HolidayData[]
       })
     } catch (error) {
       console.log(calendarId, year)
@@ -362,13 +392,15 @@ export const actions: ActionTree<State, any> = {
     }
   },
   async fetchHolidays(
-    { state, dispatch }: ActionContext<State, undefined>,
+    { state, commit, dispatch }: ActionContext<State, undefined>,
     {
       year,
       selectedCountries,
       language
     }: { year: number; selectedCountries: Country[]; language: string }
   ): Promise<void> {
+    commit(mutationType.START_FETCHING)
+
     if (!state.doneClientInit) {
       await dispatch('loadAndInit')
     }
@@ -387,6 +419,8 @@ export const actions: ActionTree<State, any> = {
     Promise.all(request).then((result: any[]): void => {
       console.log(result)
     })
+
+    commit(mutationType.FINISH_FETCHING)
   },
   setTargetDate(
     { commit }: ActionContext<State, undefined>,

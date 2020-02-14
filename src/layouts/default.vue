@@ -9,6 +9,9 @@
         v-show="$store.state.modal.isShownTargetDate"
       />
     </transition>
+    <transition name="fade">
+      <div v-show="$store.state.gapi.isFetching" class="loading"></div>
+    </transition>
   </div>
 </template>
 <script lang="ts">
@@ -62,5 +65,43 @@ body,
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 200ms linear;
+}
+
+.loading {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(2px);
+}
+
+.loading::before {
+  content: '';
+  display: block;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  margin: auto;
+  width: 40px;
+  height: 40px;
+  border: 6px solid rgb(16, 153, 245);
+  border-radius: 999em;
+  border-top-color: rgba(16, 153, 245, 0.2);
+  animation: loading 700ms linear 0s infinite normal forwards;
+}
+
+@keyframes loading {
+  0% {
+    transform: rotate(0);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 </style>
