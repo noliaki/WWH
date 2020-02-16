@@ -140,6 +140,8 @@ header {
 
 .country-language {
   @apply absolute top-0 right-0 bottom-0 flex;
+  width: 14.2vw;
+  max-width: 52px;
 }
 
 .header-year {
@@ -154,26 +156,30 @@ header {
 }
 
 .btn {
-  @apply py-1 px-4 text-sm bg-purple-200 text-purple-700 rounded-full no-underline;
+  @apply py-1 px-2 h-full text-sm bg-purple-200 text-purple-700 rounded-full no-underline;
 }
 
 .btn-prev {
-  margin-right: 4em;
+  margin-right: 3em;
 }
 
 .btn-next {
-  margin-left: 4em;
+  margin-left: 3em;
 }
 
 .btn-country-select {
-  @apply flex justify-center items-center bg-gray-300 leading-none;
-  width: 20vw;
-  max-width: 40px;
+  @apply flex justify-center items-center bg-gray-300 w-full h-full;
 }
 
 .btn-country-select svg {
   display: block;
-  max-width: 50%;
-  height: auto;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 50%;
+  height: 50%;
+  margin: auto;
 }
 </style>

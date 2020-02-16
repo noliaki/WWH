@@ -96,6 +96,16 @@ body,
   animation: loading 700ms linear 0s infinite normal forwards;
 }
 
+input,
+button,
+select,
+option {
+  font-family: inherit;
+  font-size: inherit;
+  font-style: inherit;
+  font-weight: inherit;
+}
+
 @keyframes loading {
   0% {
     transform: rotate(0);

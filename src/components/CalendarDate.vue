@@ -13,16 +13,16 @@
       :class="{ '-isOutMonth': isOutMonth }"
       @click.prevent="onClickDate"
     >
-      <div class="cell-content">
-        <div class="cell-date">{{ date.getDate() }}</div>
+      <span class="cell-content">
+        <span class="cell-date">{{ date.getDate() }}</span>
         <transition name="fade">
-          <div v-if="isHoliday" class="cell-holidays">
+          <span v-if="isHoliday" class="cell-holidays">
             <span v-for="(holiday, hIndex) in holidayCountries" :key="hIndex">
               {{ getFragEmojiByCountryCode(holiday.alpha2Code) }}
             </span>
-          </div>
+          </span>
         </transition>
-      </div>
+      </span>
     </button>
   </div>
 </template>
@@ -127,6 +127,8 @@ export default Vue.extend({
   left: 0;
   width: 3vw;
   height: 3vw;
+  max-width: 13px;
+  max-height: 13px;
   margin: auto;
   border-radius: 999em;
   border: 3px solid #81e6d9;
@@ -154,7 +156,7 @@ export default Vue.extend({
 }
 
 .cell-content {
-  @apply flex flex-col w-full h-full text-right px-2 py-1;
+  @apply flex flex-col w-full h-full text-right px-2 py-1 absolute inset-0;
 }
 
 .-isOutMonth {

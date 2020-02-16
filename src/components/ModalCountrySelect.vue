@@ -65,7 +65,7 @@ export default Vue.extend({
 }
 
 .btn-fetch-holiday {
-  @apply bg-blue-400 rounded-full py-1 px-4 text-blue-800;
+  @apply bg-blue-400 rounded-full py-1 px-4 text-white;
 }
 
 .select-action {
