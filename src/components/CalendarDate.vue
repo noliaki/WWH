@@ -70,11 +70,16 @@ export default Vue.extend({
     },
     holidays(): any[] {
       return this.$store.state.gapi.holidays
+    },
+    isFetching(): boolean {
+      return this.$store.state.gapi.isFetching
     }
   },
   watch: {
-    holidays(): void {
-      this.startTimer()
+    isFetching(next: boolean): void {
+      if (!next) {
+        this.startTimer()
+      }
     }
   },
   beforeDestroy(): void {
@@ -103,7 +108,7 @@ export default Vue.extend({
       this.timerId = window.setTimeout(() => {
         this.getHoliday()
         this.isWaiting = false
-      }, this.index * 60)
+      }, (this.index + 1) * 60)
     },
     stopTimer(): void {
       if (this.timerId) {

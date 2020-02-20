@@ -61,7 +61,7 @@ export default Vue.extend({
 </script>
 <style lang="postcss" scoped>
 h2 {
-  @apply text-center font-bold;
+  @apply text-center font-bold bg-gray-200 py-2;
 }
 
 .holiday-item {

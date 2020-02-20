@@ -292,13 +292,17 @@ export const mutations: MutationTree<State> = {
       summary: string
     }
   ): void {
-    state.holidays.push({
+    const countryHolidays: CountryHolidays = {
       year,
       holidays,
       alpha2Code,
       language,
       summary
-    })
+    }
+
+    Object.freeze(countryHolidays)
+
+    state.holidays.push(countryHolidays)
   },
   [mutationType.SET_TARGET_DATE](state: State, targetDate: Date): void {
     state.targetDate = targetDate
@@ -373,18 +377,26 @@ export const actions: ActionTree<State, any> = {
 
       console.log(res)
 
+      const holidays: HolidayData[] = (res.result.items as Resource[]).map(
+        (holiday: Resource): HolidayData => {
+          const holidayData: HolidayData = {
+            start: holiday.start,
+            end: holiday.end,
+            summary: holiday.summary
+          }
+
+          Object.freeze(holidayData)
+
+          return holidayData
+        }
+      ) as HolidayData[]
+
       commit(mutationType.SET_HOLIDAYS, {
         alpha2Code,
         year,
         language,
         summary: res.result.summary,
-        holidays: (res.result.items as Resource[]).map(
-          (holiday: Resource): HolidayData => ({
-            start: holiday.start,
-            end: holiday.end,
-            summary: holiday.summary
-          })
-        ) as HolidayData[]
+        holidays
       })
     } catch (error) {
       console.log(calendarId, year)
@@ -416,7 +428,7 @@ export const actions: ActionTree<State, any> = {
       }
     )
 
-    Promise.all(request).then((result: any[]): void => {
+    await Promise.all(request).then((result: any[]): void => {
       console.log(result)
     })
 
